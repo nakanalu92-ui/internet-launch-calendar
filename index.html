@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>앱 서비스 순차배포 캘린더 (8/31 ~ 9/30)</title>
+<title>앱 서비스 순차배포 캘린더 (8/31 ~ 10/1)</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 </head>
 <body>
@@ -24,6 +24,8 @@
     --bg: #f4f4ee;            /* U+ Light Gray */
     --card: #ffffff;          /* U+ White */
     --border: #e7e6df;
+    --weekday-bg: #eceae3;    /* 평일 기본 배경 */
+    --weekday-border: #d9d7cf;
     color-scheme: light;
   }
   * { box-sizing: border-box; }
@@ -75,10 +77,8 @@
   }
   .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
   .dot.launch { background: var(--brand); }
-  .dot.saturday { background: var(--pink-deep); }
-  .dot.holiday { background: var(--brand); }
-  .dot.freeze { background: var(--ink); }
   .dot.done { background: var(--lime-deep); }
+  .dot.weekday { background: var(--weekday-border); }
   .dot.today { background: var(--brand); box-shadow: 0 0 0 3px rgba(255,46,152,0.25); }
 
   .cal-panel {
@@ -130,25 +130,14 @@
     background: var(--muted);
   }
 
-  /* 상태별 카드 배경 — 진하게 깔아서 한눈에 구분되도록 함 */
+  /* 평일(월~목) 기본 배경 — 은은한 그레이 */
+  .day.weekday { background: var(--weekday-bg); border-color: var(--weekday-border); }
+
+  /* 특히 신경써야 하는 날짜 — 분홍색 강조 */
   .day.launch { background: var(--pink); border-color: var(--brand); border-width: 2px; }
   .day.launch .day-risk:not(:empty) { background: var(--brand); }
 
-  .day.freefri { background: var(--pink-soft); border-color: var(--pink-deep); }
-  .day.freefri .day-risk:not(:empty) { background: var(--pink-deep); }
-
-  .day.saturday { background: var(--pink-soft); border-color: var(--pink-deep); }
-  .day.saturday .day-risk:not(:empty) { background: var(--pink-deep); }
-
-  .day.sunday { background: #eceae3; border-color: var(--muted); }
-  .day.sunday .day-risk:not(:empty) { background: var(--muted); }
-
-  .day.freeze { background: #e6e4de; border-color: var(--ink); }
-  .day.freeze .day-risk:not(:empty) { background: var(--ink); }
-
-  .day.holiday { background: var(--pink); border-color: var(--brand); border-width: 2px; }
-  .day.holiday .day-risk:not(:empty) { background: var(--brand); }
-
+  /* 배포 완료 확인 날짜 — 라임색 강조 */
   .day.done { background: var(--lime-light); border-color: var(--lime-deep); }
   .day.done .day-risk:not(:empty) { background: var(--lime-deep); }
 
@@ -192,16 +181,14 @@
 
   <header class="page-header">
     <h1 class="editable" data-key="title">📅 앱 서비스 순차배포 캘린더</h1>
-    <p class="editable" data-key="subtitle">2026년 8월 31일 ~ 9월 30일</p>
+    <p class="editable" data-key="subtitle-v2">2026년 8월 31일 ~ 10월 1일</p>
   </header>
 
   <div class="legend">
     <span><i class="dot today"></i>오늘</span>
-    <span><i class="dot launch"></i>출시일</span>
-    <span><i class="dot saturday"></i>토요일</span>
-    <span><i class="dot holiday"></i>공휴일 · 추석 연휴</span>
-    <span><i class="dot freeze"></i>Deployment Freeze</span>
-    <span><i class="dot done"></i>완료 / 배포 종료</span>
+    <span><i class="dot launch"></i>중요 일정</span>
+    <span><i class="dot done"></i>완료 확인</span>
+    <span><i class="dot weekday"></i>평일</span>
   </div>
 
   <div class="cal-panel">
@@ -214,189 +201,231 @@
       <div class="day empty"></div>
       <div class="day launch" data-date="2026-08-31">
         <div class="day-num">8/31</div>
-        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0831-ratio">1% ~ 5%</span></div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0831-ratio-v2">1%</span></div>
         <div class="day-note editable" data-key="0831-note">🚀 출시일. Google Play 콘솔 순차배포 개시, 초기 크래시(Crashlytics) 실시간 감시</div>
         <div class="day-risk editable" data-key="0831-risk">배포 시작</div>
       </div>
-      <div class="day" data-date="2026-09-01">
+      <div class="day weekday" data-date="2026-09-01">
         <div class="day-num">1</div>
-        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0901-ratio">5%</span></div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0901-ratio-v2">1%</span></div>
         <div class="day-note editable" data-key="0901-note">주요 온보딩, 회원가입, 결제 실패 로그 점검</div>
         <div class="day-risk editable" data-key="0901-risk"></div>
       </div>
-      <div class="day" data-date="2026-09-02">
+      <div class="day weekday" data-date="2026-09-02">
         <div class="day-num">2</div>
-        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0902-ratio">10% ~ 20%</span></div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0902-ratio-v2">5%</span></div>
         <div class="day-note editable" data-key="0902-note">초기 치명적 이슈 미발생 시 배포 비율 1차 확대</div>
         <div class="day-risk editable" data-key="0902-risk"></div>
       </div>
-      <div class="day" data-date="2026-09-03">
+      <div class="day weekday" data-date="2026-09-03">
         <div class="day-num">3</div>
-        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0903-ratio">20%</span></div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0903-ratio-v2">5%</span></div>
         <div class="day-note editable" data-key="0903-note">트래픽 증가 추이 및 DB/서버 부하 모니터링</div>
         <div class="day-risk editable" data-key="0903-risk"></div>
       </div>
-      <div class="day freefri" data-date="2026-09-04">
+      <div class="day" data-date="2026-09-04">
         <div class="day-num">4</div>
-        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0904-ratio">20% (동결)</span></div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0904-ratio-v2">5% (동결)</span></div>
         <div class="day-note editable" data-key="0904-note">주말 대응 불가에 대비하여 배포 비율 유지</div>
         <div class="day-risk editable" data-key="0904-risk">⚠️ 금요일 비율 상향 금지</div>
       </div>
-      <div class="day saturday" data-date="2026-09-05">
+      <div class="day" data-date="2026-09-05">
         <div class="day-num">5</div>
         <div class="day-note editable" data-key="0905-note">주말 자동 모니터링 수행</div>
         <div class="day-risk editable" data-key="0905-risk">토요일 (대응 불가)</div>
       </div>
 
-      <div class="day sunday" data-date="2026-09-06">
+      <div class="day" data-date="2026-09-06">
         <div class="day-num">6</div>
         <div class="day-note editable" data-key="0906-note">주말 자동 모니터링 수행</div>
         <div class="day-risk editable" data-key="0906-risk">일요일 (대응 불가)</div>
       </div>
-      <div class="day" data-date="2026-09-07">
+      <div class="day weekday" data-date="2026-09-07">
         <div class="day-num">7</div>
-        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0907-ratio">30%</span></div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0907-ratio-v2">10%~20%</span></div>
         <div class="day-note editable" data-key="0907-note">주말 누적 CS/리뷰 확인 후 배포 비율 2차 확대</div>
         <div class="day-risk editable" data-key="0907-risk"></div>
       </div>
-      <div class="day" data-date="2026-09-08">
+      <div class="day weekday" data-date="2026-09-08">
         <div class="day-num">8</div>
         <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0908-ratio">30%</span></div>
         <div class="day-note editable" data-key="0908-note">API 서버 응답 속도 및 에러율 점검</div>
         <div class="day-risk editable" data-key="0908-risk"></div>
       </div>
-      <div class="day" data-date="2026-09-09">
+      <div class="day weekday" data-date="2026-09-09">
         <div class="day-num">9</div>
         <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0909-ratio">50%</span></div>
         <div class="day-note editable" data-key="0909-note">배포 비율 50% 확대 (중규모 유저 대상 검증)</div>
         <div class="day-risk editable" data-key="0909-risk"></div>
       </div>
-      <div class="day" data-date="2026-09-10">
+      <div class="day weekday" data-date="2026-09-10">
         <div class="day-num">10</div>
         <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0910-ratio">50%</span></div>
         <div class="day-note editable" data-key="0910-note">특정 기기/OS 버전별 호환성 이슈 점검</div>
         <div class="day-risk editable" data-key="0910-risk"></div>
       </div>
-      <div class="day freefri" data-date="2026-09-11">
+      <div class="day" data-date="2026-09-11">
         <div class="day-num">11</div>
         <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0911-ratio">50% (동결)</span></div>
         <div class="day-note editable" data-key="0911-note">주말 대응 불가에 대비하여 배포 비율 유지</div>
         <div class="day-risk editable" data-key="0911-risk">⚠️ 금요일 비율 상향 금지</div>
       </div>
-      <div class="day saturday" data-date="2026-09-12">
+      <div class="day" data-date="2026-09-12">
         <div class="day-num">12</div>
         <div class="day-note editable" data-key="0912-note">주말 자동 모니터링 수행</div>
         <div class="day-risk editable" data-key="0912-risk">토요일 (대응 불가)</div>
       </div>
 
-      <div class="day sunday" data-date="2026-09-13">
+      <div class="day" data-date="2026-09-13">
         <div class="day-num">13</div>
         <div class="day-note editable" data-key="0913-note">주말 자동 모니터링 수행</div>
         <div class="day-risk editable" data-key="0913-risk">일요일 (대응 불가)</div>
       </div>
-      <div class="day" data-date="2026-09-14">
+      <div class="day weekday" data-date="2026-09-14">
         <div class="day-num">14</div>
         <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0914-ratio">70% ~ 80%</span></div>
         <div class="day-note editable" data-key="0914-note">배포 비율 대폭 상향</div>
         <div class="day-risk editable" data-key="0914-risk"></div>
       </div>
-      <div class="day" data-date="2026-09-15">
+      <div class="day weekday" data-date="2026-09-15">
         <div class="day-num">15</div>
         <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0915-ratio">80%</span></div>
         <div class="day-note editable" data-key="0915-note">잔여 버그 및 스토어 피드백 수집</div>
         <div class="day-risk editable" data-key="0915-risk"></div>
       </div>
-      <div class="day done" data-date="2026-09-16">
+      <div class="day launch" data-date="2026-09-16">
         <div class="day-num">16</div>
         <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0916-ratio">100%</span></div>
         <div class="day-note editable" data-key="0916-note">Android 100% 완전 배포 전환</div>
         <div class="day-risk editable" data-key="0916-risk">🚀 Android 완료</div>
       </div>
-      <div class="day" data-date="2026-09-17">
+      <div class="day weekday" data-date="2026-09-17">
         <div class="day-num">17</div>
         <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0917-ratio">100%</span></div>
         <div class="day-note editable" data-key="0917-note">100% 배포 상태에서 전체 시스템 안정성 점검</div>
         <div class="day-risk editable" data-key="0917-risk"></div>
       </div>
-      <div class="day" data-date="2026-09-18">
+      <div class="day done" data-date="2026-09-18">
         <div class="day-num">18</div>
         <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0918-ratio">100%</span></div>
-        <div class="day-note editable" data-key="0918-note">추석 연휴 전 최종 시스템 안정화 확인</div>
-        <div class="day-risk editable" data-key="0918-risk">연휴 전 마지막 평일</div>
+        <div class="day-note editable" data-key="0918-note-v2">Android 100% 배포 완료 상태 유지, 추석 연휴 전 최종 시스템 안정화 확인</div>
+        <div class="day-risk editable" data-key="0918-risk-v2">✅ 배포 완료 확인</div>
       </div>
-      <div class="day saturday" data-date="2026-09-19">
+      <div class="day" data-date="2026-09-19">
         <div class="day-num">19</div>
         <div class="day-note editable" data-key="0919-note">주말 자동 모니터링 수행</div>
         <div class="day-risk editable" data-key="0919-risk">토요일 (대응 불가)</div>
       </div>
 
       <div class="week-banner">🔴 추석 연휴 주간 · 9/24(목) ~ 9/27(일)</div>
-      <div class="day sunday" data-date="2026-09-20">
+      <div class="day" data-date="2026-09-20">
         <div class="day-num">20</div>
         <div class="day-note editable" data-key="0920-note">주말 자동 모니터링 수행</div>
         <div class="day-risk editable" data-key="0920-risk">일요일 (대응 불가)</div>
       </div>
-      <div class="day freeze" data-date="2026-09-21">
+      <div class="day done" data-date="2026-09-21">
         <div class="day-num">21</div>
         <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0921-ratio">100% (AOS)</span></div>
-        <div class="day-note editable" data-key="0921-note">신규 빌드 제출 및 배포 비율 수정 금지</div>
-        <div class="day-risk editable" data-key="0921-risk">⛔ Deployment Freeze</div>
+        <div class="day-note editable" data-key="0921-note-v2">Android 100% 배포 완료 상태 유지, 신규 빌드 제출 및 배포 비율 수정 금지</div>
+        <div class="day-risk editable" data-key="0921-risk-v2">✅ 배포 완료 유지</div>
       </div>
-      <div class="day freeze" data-date="2026-09-22">
+      <div class="day done" data-date="2026-09-22">
         <div class="day-num">22</div>
         <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0922-ratio">100% (AOS)</span></div>
-        <div class="day-note editable" data-key="0922-note">연휴 전 수동 점검 마무리</div>
-        <div class="day-risk editable" data-key="0922-risk">⛔ Deployment Freeze</div>
+        <div class="day-note editable" data-key="0922-note-v2">연휴 전 수동 점검 마무리, 배포 완료 상태 확인</div>
+        <div class="day-risk editable" data-key="0922-risk-v2">✅ 배포 완료 유지</div>
       </div>
-      <div class="day freeze" data-date="2026-09-23">
+      <div class="day done" data-date="2026-09-23">
         <div class="day-num">23</div>
         <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0923-ratio">100% (AOS)</span></div>
-        <div class="day-note editable" data-key="0923-note">추석 연휴 전 최종 점검 (연휴 전 마지막 평일)</div>
-        <div class="day-risk editable" data-key="0923-risk">⛔ Deployment Freeze</div>
+        <div class="day-note editable" data-key="0923-note-v2">추석 연휴 전 최종 점검, Android 배포 완료 상태 확인</div>
+        <div class="day-risk editable" data-key="0923-risk-v2">✅ 배포 완료 유지</div>
       </div>
-      <div class="day holiday" data-date="2026-09-24">
+      <div class="day weekday" data-date="2026-09-24">
         <div class="day-num">24</div>
         <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0924-ratio">100% (AOS)</span></div>
         <div class="day-note editable" data-key="0924-note">추석 연휴 시작 (비상 모니터링)</div>
         <div class="day-risk editable" data-key="0924-risk">🔴 추석 연휴</div>
       </div>
-      <div class="day holiday" data-date="2026-09-25">
+      <div class="day" data-date="2026-09-25">
         <div class="day-num">25</div>
         <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0925-ratio">100% (AOS)</span></div>
         <div class="day-note editable" data-key="0925-note">추석 당일 (비상 모니터링)</div>
         <div class="day-risk editable" data-key="0925-risk">🔴 추석 당일</div>
       </div>
-      <div class="day holiday" data-date="2026-09-26">
+      <div class="day" data-date="2026-09-26">
         <div class="day-num">26</div>
         <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0926-ratio">100% (AOS)</span></div>
         <div class="day-note editable" data-key="0926-note">추석 연휴 (비상 모니터링)</div>
         <div class="day-risk editable" data-key="0926-risk">🔴 추석 연휴 (토요일)</div>
       </div>
 
-      <div class="day holiday" data-date="2026-09-27">
+      <div class="day" data-date="2026-09-27">
         <div class="day-num">27</div>
         <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0927-ratio">100% (AOS)</span></div>
         <div class="day-note editable" data-key="0927-note">추석 연휴 마지막 날 (비상 모니터링)</div>
         <div class="day-risk editable" data-key="0927-risk">🔴 추석 연휴 (일요일)</div>
       </div>
-      <div class="day" data-date="2026-09-28">
+      <div class="day launch" data-date="2026-09-28">
         <div class="day-num">28</div>
-        <div class="day-row"><span class="badge badge-ios">iOS</span><span class="day-ratio editable" data-key="0928-ratio">1% ~ 2%</span></div>
+        <div class="day-row"><span class="badge badge-ios">iOS</span><span class="day-ratio editable" data-key="0928-ratio-v2">10%~20%</span></div>
         <div class="day-note editable" data-key="0928-note">App Store Connect 단계적 배포(Phased Release) 시작</div>
         <div class="day-risk editable" data-key="0928-risk">🚀 iOS 배포 시작</div>
       </div>
-      <div class="day done" data-date="2026-09-29">
+      <div class="day weekday" data-date="2026-09-29">
         <div class="day-num">29</div>
-        <div class="day-row"><span class="badge badge-ios">iOS</span><span class="day-ratio editable" data-key="0929-ratio">100%</span></div>
-        <div class="day-note editable" data-key="0929-note">특이 이슈 미발생 확인 후 '즉시 배포' 클릭하여 100% 확정</div>
-        <div class="day-risk editable" data-key="0929-risk">🚀 iOS 완료</div>
+        <div class="day-row"><span class="badge badge-ios">iOS</span><span class="day-ratio editable" data-key="0929-ratio-v2">30%</span></div>
+        <div class="day-note editable" data-key="0929-note-v2">특이 이슈 미발생 확인 후 배포 비율 확대</div>
+        <div class="day-risk editable" data-key="0929-risk-v2"></div>
       </div>
-      <div class="day done" data-date="2026-09-30">
+      <div class="day weekday" data-date="2026-09-30">
         <div class="day-num">30</div>
-        <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0930-ratio">100% (통합)</span></div>
-        <div class="day-note editable" data-key="0930-note">AOS + iOS 전체 100% 배포 완료 및 차월 운영 전환</div>
-        <div class="day-risk editable" data-key="0930-risk">🎉 전 기능 배포 종료</div>
+        <div class="day-row"><span class="badge badge-ios">iOS</span><span class="day-ratio editable" data-key="0930-ratio-v2">50%</span></div>
+        <div class="day-note editable" data-key="0930-note-v2">iOS 배포 비율 50%로 확대, 안정성 지속 모니터링</div>
+        <div class="day-risk editable" data-key="0930-risk-v2"></div>
       </div>
+      <div class="day launch" data-date="2026-10-01">
+        <div class="day-num">10/1</div>
+        <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="1001-ratio">100%</span></div>
+        <div class="day-note editable" data-key="1001-note">iOS 100% 완전 배포 전환 — AOS + iOS 전체 고객 대상 배포 완료</div>
+        <div class="day-risk editable" data-key="1001-risk">🎉 전체 고객 대상 배포 완료</div>
+      </div>
+      <div class="day" data-date="2026-10-02">
+        <div class="day-num">2</div>
+      </div>
+      <div class="day" data-date="2026-10-03">
+        <div class="day-num">3</div>
+      </div>
+
+      <div class="week-banner">🔧 강제 업데이트 (예정) · 10/5(월) ~ 10/11(일)</div>
+      <div class="day" data-date="2026-10-04">
+        <div class="day-num">4</div>
+      </div>
+      <div class="day weekday" data-date="2026-10-05">
+        <div class="day-num">5</div>
+      </div>
+      <div class="day weekday" data-date="2026-10-06">
+        <div class="day-num">6</div>
+      </div>
+      <div class="day weekday" data-date="2026-10-07">
+        <div class="day-num">7</div>
+      </div>
+      <div class="day weekday" data-date="2026-10-08">
+        <div class="day-num">8</div>
+      </div>
+      <div class="day" data-date="2026-10-09">
+        <div class="day-num">9</div>
+      </div>
+      <div class="day" data-date="2026-10-10">
+        <div class="day-num">10</div>
+      </div>
+
+      <div class="day" data-date="2026-10-11">
+        <div class="day-num">11</div>
+      </div>
+      <div class="day empty"></div>
+      <div class="day empty"></div>
+      <div class="day empty"></div>
       <div class="day empty"></div>
       <div class="day empty"></div>
       <div class="day empty"></div>
@@ -412,6 +441,8 @@
 <script>
   var BIN_URL = 'https://json.extendsclass.com/bin/4604dc97f37b';
   var CACHE_KEY = 'deployCal_v4_cache';
+  var LAST_FETCH_KEY = 'deployCal_v4_lastFetch';
+  var MIN_FETCH_INTERVAL_MS = 8000; // 8초 안에 다시 로드해도 재요청 안 함 (429 방지)
   var editMode = false;
 
   function applyData(data) {
@@ -434,13 +465,34 @@
     } catch (e) {}
   }
 
+  // 429(요청 과다) 응답이면 잠깐 기다렸다가 한 번만 재시도
+  function fetchJsonWithRetry(url, options, retriesLeft) {
+    return fetch(url, options).then(function(r) {
+      if (r.status === 429 && retriesLeft > 0) {
+        var retryAfterHeader = r.headers.get('Retry-After');
+        var waitMs = retryAfterHeader ? parseInt(retryAfterHeader, 10) * 1000 : 3000;
+        if (isNaN(waitMs)) waitMs = 3000;
+        return new Promise(function(resolve) { setTimeout(resolve, waitMs); })
+          .then(function() { return fetchJsonWithRetry(url, options, retriesLeft - 1); });
+      }
+      if (!r.ok) throw new Error('요청 실패: ' + r.status);
+      return r.json();
+    });
+  }
+
   function loadRemote() {
     loadFromCache();
     updateDday();
     markToday();
-    fetch(BIN_URL, { cache: 'no-store' })
-      .then(function(r) { if (!r.ok) throw new Error('load failed'); return r.json(); })
+
+    // 짧은 시간 안에 페이지가 여러 번 새로고침돼도(개발자도구 확인 등) API를 반복 호출하지 않음
+    var lastFetch = parseInt(localStorage.getItem(LAST_FETCH_KEY) || '0', 10);
+    var now = Date.now();
+    if (now - lastFetch < MIN_FETCH_INTERVAL_MS) return;
+
+    fetchJsonWithRetry(BIN_URL, { cache: 'no-store' }, 1)
       .then(function(data) {
+        localStorage.setItem(LAST_FETCH_KEY, String(Date.now()));
         if (data && typeof data === 'object') {
           applyData(data);
           cacheLocally(data);
@@ -464,17 +516,17 @@
     var data = collectData();
     cacheLocally(data);
     showToast('저장 중...');
-    fetch(BIN_URL, {
+    fetchJsonWithRetry(BIN_URL, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
-    })
-      .then(function(r) { if (!r.ok) throw new Error('save failed'); return r.json(); })
+    }, 1)
       .then(function() {
+        localStorage.setItem(LAST_FETCH_KEY, String(Date.now()));
         showToast('저장했어요 — 모두에게 반영돼요 ✅');
         updateDday();
       })
-      .catch(function(err) { showToast('저장 실패 — 인터넷 연결을 확인해주세요 ⚠️'); });
+      .catch(function(err) { showToast('저장 실패 — 잠시 후 다시 시도해주세요 ⚠️'); });
   }
 
   function showToast(msg) {
