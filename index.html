@@ -4,35 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>앱 서비스 순차배포 캘린더 (8/31 ~ 9/30)</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 </head>
 <body>
 <section>
 <style>
   :root {
-    --brand: #4f46e5;
-    --border: #e5e7eb;
-    --ink: #1f2330;
-    --bg: #f8f9fb;
-    --card: #ffffff;
-    --muted: #9ca3af;
-    --sat-blue: #2563eb;
-    --holiday-red: #dc2626;
-    --freeze-purple: #7c3aed;
-    --launch-gold: #f59e0b;
-    --done-green: #10b981;
+    /* LG U+ 브랜드 컬러 (라이트 테마로 고정 — 시스템 다크모드 영향 안 받음) */
+    --brand: #ff2e98;         /* Bright Magenta */
+    --brand-text: #c4127a;    /* 밝은 배경 위에 쓰는 진한 마젠타 텍스트 */
+    --pink: #f7bada;          /* Pink */
+    --pink-deep: #c23c86;     /* 칩용 진한 핑크 */
+    --pink-soft: #ffdeee;     /* Light Pink */
+    --lime: #d7e646;          /* Lime */
+    --lime-light: #f3fac3;    /* Light Lime */
+    --lime-deep: #6b7a00;     /* 칩용 진한 라임 */
+    --ink: #22171c;           /* U+ Black — 모든 본문 텍스트는 항상 이 색 */
+    --muted: #82817e;         /* U+ Gray */
+    --bg: #f4f4ee;            /* U+ Light Gray */
+    --card: #ffffff;          /* U+ White */
+    --border: #e7e6df;
     color-scheme: light;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --border: #333844;
-      --ink: #e5e7eb;
-      --bg: #14161c;
-      --card: #1b1e26;
-      --muted: #6b7280;
-    }
-  }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background: var(--bg); color: var(--ink); }
+  body { margin: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background: var(--bg); color: var(--ink); }
   .wrap { max-width: 1220px; margin: 0 auto; padding: 24px 16px 64px; }
 
   .topbar {
@@ -45,46 +40,50 @@
   #editBtn {
     border: none; cursor: pointer; font-weight: 700; font-size: 13.5px;
     padding: 9px 16px; border-radius: 999px; background: var(--brand); color: #fff;
-    box-shadow: 0 2px 8px rgba(79,70,229,0.35);
+    box-shadow: 0 2px 8px rgba(255,46,152,0.35);
     transition: background .15s ease, transform .1s ease;
   }
   #editBtn:active { transform: scale(0.97); }
-  #editBtn.active { background: #dc2626; box-shadow: 0 2px 8px rgba(220,38,38,0.35); }
+  #editBtn.active { background: var(--ink); box-shadow: 0 2px 8px rgba(34,23,28,0.35); }
 
   .dday-banner {
-    display: flex; align-items: center; justify-content: center; gap: 14px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
     margin: 18px 0 8px; padding: 18px 20px; border-radius: 18px;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    box-shadow: 0 8px 24px rgba(79,70,229,0.28);
+    background: linear-gradient(135deg, var(--ink), #3a2a30);
+    box-shadow: 0 8px 24px rgba(34,23,28,0.25);
     color: #fff; flex-wrap: wrap; text-align: center;
   }
-  .dday-label { font-size: 15px; font-weight: 700; opacity: 0.97; }
+  .dday-label { font-size: 15px; font-weight: 700; color: #fff; }
+  .dday-date {
+    font-size: 13px; font-weight: 700; color: var(--ink); background: #fff;
+    padding: 4px 10px; border-radius: 999px; min-width: 90px; display: inline-block;
+  }
   .dday-badge {
     font-size: 24px; font-weight: 900; letter-spacing: 0.5px;
-    background: rgba(255,255,255,0.2); padding: 5px 18px; border-radius: 999px;
+    background: var(--brand); color: #fff; padding: 5px 18px; border-radius: 999px;
   }
 
   header.page-header { text-align: center; margin: 24px 0 20px; }
-  header.page-header h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.3px; }
+  header.page-header h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.3px; color: var(--ink); }
   header.page-header p { color: var(--muted); margin: 0; font-size: 13.5px; }
 
   .legend { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin: 16px 0 26px; font-size: 12px; }
   .legend span {
     display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px;
-    border: 1px solid var(--border); background: var(--card); font-weight: 600;
+    border: 1px solid var(--border); background: var(--card); font-weight: 600; color: var(--ink);
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
   .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-  .dot.launch { background: var(--launch-gold); }
-  .dot.saturday { background: var(--sat-blue); }
-  .dot.holiday { background: var(--holiday-red); }
-  .dot.freeze { background: var(--freeze-purple); }
-  .dot.done { background: var(--done-green); }
-  .dot.today { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.3); }
+  .dot.launch { background: var(--brand); }
+  .dot.saturday { background: var(--pink-deep); }
+  .dot.holiday { background: var(--brand); }
+  .dot.freeze { background: var(--ink); }
+  .dot.done { background: var(--lime-deep); }
+  .dot.today { background: var(--brand); box-shadow: 0 0 0 3px rgba(255,46,152,0.25); }
 
   .cal-panel {
     background: var(--card); border: 1px solid var(--border); border-radius: 20px;
-    padding: 18px; box-shadow: 0 4px 20px rgba(20,22,30,0.06);
+    padding: 18px; box-shadow: 0 4px 20px rgba(34,23,28,0.06);
   }
   .cal-scroll { overflow-x: auto; }
   .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(152px, 1fr)); gap: 10px; min-width: 1080px; }
@@ -92,77 +91,79 @@
   .dow-band { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, minmax(152px, 1fr)); gap: 10px; margin-bottom: 2px; }
   .dow {
     text-align: center; font-weight: 800; font-size: 13px; padding: 8px 0; color: var(--muted);
-    background: rgba(79,70,229,0.05); border-radius: 8px;
+    background: var(--bg); border-radius: 8px;
   }
-  .dow.sun { color: var(--holiday-red); background: rgba(220,38,38,0.06); }
-  .dow.sat { color: var(--sat-blue); background: rgba(37,99,235,0.06); }
+  .dow.sun { color: var(--brand-text); background: var(--pink-soft); }
+  .dow.sat { color: var(--pink-deep); background: var(--pink-soft); }
 
   .week-banner {
     grid-column: 1 / -1; margin: 12px 2px 2px; padding: 9px 14px; border-radius: 10px;
-    background: rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.35);
-    color: var(--holiday-red); font-weight: 800; font-size: 12.5px; text-align: center;
+    background: var(--brand); border: 1px solid var(--brand);
+    color: #fff; font-weight: 800; font-size: 12.5px; text-align: center;
   }
 
+  /* 카드 기본: 항상 어두운 잉크색 텍스트 고정 (배경이 무엇이든 가독성 보장) */
   .day {
     position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    padding: 12px 11px 11px; min-height: 136px; display: flex; flex-direction: column; gap: 6px;
+    padding: 12px 11px 11px; min-height: 138px; display: flex; flex-direction: column; gap: 7px;
     overflow: hidden;
+    color: var(--ink);
     transition: box-shadow .18s ease, transform .18s ease;
   }
-  .day::before {
-    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: rgba(79,70,229,0.35);
-  }
-  .day:hover { box-shadow: 0 6px 18px rgba(20,22,30,0.1); transform: translateY(-2px); }
+  .day:hover { box-shadow: 0 6px 18px rgba(34,23,28,0.12); transform: translateY(-2px); }
   .day.empty { visibility: hidden; }
-  .day-num { font-weight: 800; font-size: 16px; }
+  .day-num { font-weight: 900; font-size: 17px; color: var(--ink); }
   .day-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; }
-  .badge-android { background: #dcfce7; color: #15803d; }
-  .badge-ios { background: #e0e7ff; color: #4338ca; }
-  .badge-all { background: #fef3c7; color: #92400e; }
-  .day-ratio { font-weight: 900; font-size: 13.5px; }
+  .badge-android { background: #5a6300; color: #fff; }
+  .badge-ios { background: var(--ink); color: #fff; }
+  .badge-all { background: var(--brand-text); color: #fff; }
+  .day-ratio { font-weight: 900; font-size: 13.5px; color: var(--ink); }
   .day-note { font-size: 11.5px; line-height: 1.45; color: var(--ink); flex-grow: 1; }
-  .day-risk { font-size: 11px; font-weight: 800; }
 
-  .day.launch::before { background: var(--launch-gold); }
-  .day.launch { background: rgba(245,158,11,0.14); border-color: rgba(245,158,11,0.5); }
-  .day.launch .day-num { color: #b45309; }
+  /* 상태 라벨 = 항상 흰 글씨 + 진한 배경의 알약(chip). 카드 배경색과 무관하게 항상 또렷하게 보임 */
+  .day-risk {
+    font-size: 10.5px; font-weight: 800; color: var(--muted);
+  }
+  .day-risk:not(:empty) {
+    display: inline-block; width: fit-content; padding: 3px 9px; border-radius: 999px; color: #fff;
+    background: var(--muted);
+  }
 
-  .day.freefri::before { background: var(--launch-gold); }
-  .day.freefri { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); }
+  /* 상태별 카드 배경 — 진하게 깔아서 한눈에 구분되도록 함 */
+  .day.launch { background: var(--pink); border-color: var(--brand); border-width: 2px; }
+  .day.launch .day-risk:not(:empty) { background: var(--brand); }
 
-  .day.saturday::before { background: var(--sat-blue); }
-  .day.saturday { background: rgba(37,99,235,0.08); border-color: rgba(37,99,235,0.4); }
-  .day.saturday .day-num { color: var(--sat-blue); }
+  .day.freefri { background: var(--pink-soft); border-color: var(--pink-deep); }
+  .day.freefri .day-risk:not(:empty) { background: var(--pink-deep); }
 
-  .day.sunday::before { background: #9ca3af; }
-  .day.sunday { background: rgba(156,163,175,0.12); color: var(--muted); }
-  .day.sunday .day-num { color: var(--holiday-red); opacity: 0.75; }
+  .day.saturday { background: var(--pink-soft); border-color: var(--pink-deep); }
+  .day.saturday .day-risk:not(:empty) { background: var(--pink-deep); }
 
-  .day.freeze::before { background: var(--freeze-purple); }
-  .day.freeze { background: rgba(124,58,237,0.09); border-color: rgba(124,58,237,0.4); }
+  .day.sunday { background: #eceae3; border-color: var(--muted); }
+  .day.sunday .day-risk:not(:empty) { background: var(--muted); }
 
-  .day.holiday::before { background: var(--holiday-red); height: 5px; }
-  .day.holiday { background: rgba(220,38,38,0.13); border: 1.5px solid rgba(220,38,38,0.55); }
-  .day.holiday .day-num { color: var(--holiday-red); }
-  .day.holiday .day-risk { color: var(--holiday-red); }
+  .day.freeze { background: #e6e4de; border-color: var(--ink); }
+  .day.freeze .day-risk:not(:empty) { background: var(--ink); }
 
-  .day.done::before { background: var(--done-green); }
-  .day.done { background: rgba(16,185,129,0.13); border-color: rgba(16,185,129,0.5); }
+  .day.holiday { background: var(--pink); border-color: var(--brand); border-width: 2px; }
+  .day.holiday .day-risk:not(:empty) { background: var(--brand); }
 
-  .day.today { box-shadow: 0 0 0 3px var(--launch-gold), 0 8px 20px rgba(245,158,11,0.25); }
+  .day.done { background: var(--lime-light); border-color: var(--lime-deep); }
+  .day.done .day-risk:not(:empty) { background: var(--lime-deep); }
+
+  .day.today { box-shadow: 0 0 0 3px var(--brand), 0 8px 20px rgba(255,46,152,0.3); }
   .day.today .day-num::after {
     content: "오늘"; margin-left: 6px; font-size: 9.5px; font-weight: 800;
-    background: var(--launch-gold); color: #fff; padding: 1px 6px; border-radius: 999px; vertical-align: middle;
+    background: var(--brand); color: #fff; padding: 1px 6px; border-radius: 999px; vertical-align: middle;
   }
 
   body.edit-mode .editable { outline: 1.5px dashed var(--brand); outline-offset: 2px; border-radius: 4px; cursor: text; }
-  body.edit-mode .editable:focus { outline: 2px solid var(--brand); background: rgba(79,70,229,0.06); }
+  body.edit-mode .editable:focus { outline: 2px solid var(--brand); background: rgba(255,46,152,0.08); }
 
   .toast {
     position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
-    background: #1f2330; color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 13px;
+    background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 13px;
     opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 50;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -184,7 +185,8 @@
   </div>
 
   <div class="dday-banner">
-    <span class="dday-label editable" data-key="dday-label">🚀 8월 31일(월) Android 출시 예정</span>
+    <span class="dday-label editable" data-key="dday-label">🚀 Android 출시 예정</span>
+    <span class="dday-date editable" data-key="launch-date">2026-08-31</span>
     <span class="dday-badge" id="ddayBadge">D-24</span>
   </div>
 
@@ -409,7 +411,7 @@
 
 <script>
   var BIN_URL = 'https://json.extendsclass.com/bin/4604dc97f37b';
-  var CACHE_KEY = 'deployCal_v2_cache';
+  var CACHE_KEY = 'deployCal_v4_cache';
   var editMode = false;
 
   function applyData(data) {
@@ -434,6 +436,8 @@
 
   function loadRemote() {
     loadFromCache();
+    updateDday();
+    markToday();
     fetch(BIN_URL, { cache: 'no-store' })
       .then(function(r) { if (!r.ok) throw new Error('load failed'); return r.json(); })
       .then(function(data) {
@@ -441,6 +445,8 @@
           applyData(data);
           cacheLocally(data);
         }
+        updateDday();
+        markToday();
       })
       .catch(function(err) { console.warn('원격 데이터 불러오기 실패, 캐시된 내용을 사용해요', err); });
   }
@@ -464,7 +470,10 @@
       body: JSON.stringify(data)
     })
       .then(function(r) { if (!r.ok) throw new Error('save failed'); return r.json(); })
-      .then(function() { showToast('저장했어요 — 모두에게 반영돼요 ✅'); })
+      .then(function() {
+        showToast('저장했어요 — 모두에게 반영돼요 ✅');
+        updateDday();
+      })
       .catch(function(err) { showToast('저장 실패 — 인터넷 연결을 확인해주세요 ⚠️'); });
   }
 
@@ -486,7 +495,7 @@
     if (editMode) {
       btn.textContent = '💾 저장하고 완료';
       btn.classList.add('active');
-      showToast('수정 모드 켜짐 — 텍스트를 클릭해서 바로 고치세요');
+      showToast('수정 모드 켜짐 — 출시예정일도 클릭해서 바로 고칠 수 있어요 (YYYY-MM-DD)');
     } else {
       btn.textContent = '✏️ 수정하기';
       btn.classList.remove('active');
@@ -495,18 +504,26 @@
   }
 
   function updateDday() {
-    var target = new Date(2026, 7, 31);
+    var dateEl = document.querySelector('[data-key="launch-date"]');
+    var dateStr = dateEl ? dateEl.innerText.trim() : '2026-08-31';
+    var parts = dateStr.split('-').map(function(n) { return parseInt(n, 10); });
+    var badge = document.getElementById('ddayBadge');
+    if (parts.length !== 3 || parts.some(isNaN)) {
+      badge.textContent = '날짜 형식 오류';
+      return;
+    }
+    var target = new Date(parts[0], parts[1] - 1, parts[2]);
     var today = new Date();
     today.setHours(0,0,0,0);
     target.setHours(0,0,0,0);
     var diffDays = Math.round((target - today) / 86400000);
-    var badge = document.getElementById('ddayBadge');
     if (diffDays > 0) badge.textContent = 'D-' + diffDays;
     else if (diffDays === 0) badge.textContent = 'D-DAY';
     else badge.textContent = 'D+' + Math.abs(diffDays);
   }
 
   function markToday() {
+    document.querySelectorAll('.day.today').forEach(function(el) { el.classList.remove('today'); });
     var today = new Date();
     var y = today.getFullYear();
     var m = String(today.getMonth() + 1).padStart(2, '0');
@@ -518,8 +535,6 @@
 
   document.addEventListener('DOMContentLoaded', function() {
     loadRemote();
-    updateDday();
-    markToday();
   });
 </script>
 </section>
