@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>앱 서비스 순차배포 캘린더 (8/31 ~ 9/30)</title>
+</head>
+<body>
+<section>
+<style>
+  :root {
+    --brand: #4f46e5;
+    --border: #e5e7eb;
+    --ink: #1f2330;
+    --bg: #f8f9fb;
+    --card: #ffffff;
+    --muted: #9ca3af;
+    --sat-blue: #2563eb;
+    --holiday-red: #dc2626;
+    --freeze-purple: #7c3aed;
+    --launch-gold: #f59e0b;
+    --done-green: #10b981;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --border: #333844;
+      --ink: #e5e7eb;
+      --bg: #14161c;
+      --card: #1b1e26;
+      --muted: #6b7280;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background: var(--bg); color: var(--ink); }
+  .wrap { max-width: 1220px; margin: 0 auto; padding: 24px 16px 64px; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 12px 16px; margin: -24px -16px 0; flex-wrap: wrap;
+  }
+  .topbar .hint { font-size: 12.5px; color: var(--muted); }
+  #editBtn {
+    border: none; cursor: pointer; font-weight: 700; font-size: 13.5px;
+    padding: 9px 16px; border-radius: 999px; background: var(--brand); color: #fff;
+    box-shadow: 0 2px 8px rgba(79,70,229,0.35);
+    transition: background .15s ease, transform .1s ease;
+  }
+  #editBtn:active { transform: scale(0.97); }
+  #editBtn.active { background: #dc2626; box-shadow: 0 2px 8px rgba(220,38,38,0.35); }
+
+  .dday-banner {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    margin: 18px 0 8px; padding: 18px 20px; border-radius: 18px;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    box-shadow: 0 8px 24px rgba(79,70,229,0.28);
+    color: #fff; flex-wrap: wrap; text-align: center;
+  }
+  .dday-label { font-size: 15px; font-weight: 700; opacity: 0.97; }
+  .dday-badge {
+    font-size: 24px; font-weight: 900; letter-spacing: 0.5px;
+    background: rgba(255,255,255,0.2); padding: 5px 18px; border-radius: 999px;
+  }
+
+  header.page-header { text-align: center; margin: 24px 0 20px; }
+  header.page-header h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.3px; }
+  header.page-header p { color: var(--muted); margin: 0; font-size: 13.5px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin: 16px 0 26px; font-size: 12px; }
+  .legend span {
+    display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--card); font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .dot.launch { background: var(--launch-gold); }
+  .dot.saturday { background: var(--sat-blue); }
+  .dot.holiday { background: var(--holiday-red); }
+  .dot.freeze { background: var(--freeze-purple); }
+  .dot.done { background: var(--done-green); }
+  .dot.today { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.3); }
+
+  .cal-panel {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 18px; box-shadow: 0 4px 20px rgba(20,22,30,0.06);
+  }
+  .cal-scroll { overflow-x: auto; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(152px, 1fr)); gap: 10px; min-width: 1080px; }
+
+  .dow-band { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, minmax(152px, 1fr)); gap: 10px; margin-bottom: 2px; }
+  .dow {
+    text-align: center; font-weight: 800; font-size: 13px; padding: 8px 0; color: var(--muted);
+    background: rgba(79,70,229,0.05); border-radius: 8px;
+  }
+  .dow.sun { color: var(--holiday-red); background: rgba(220,38,38,0.06); }
+  .dow.sat { color: var(--sat-blue); background: rgba(37,99,235,0.06); }
+
+  .week-banner {
+    grid-column: 1 / -1; margin: 12px 2px 2px; padding: 9px 14px; border-radius: 10px;
+    background: rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.35);
+    color: var(--holiday-red); font-weight: 800; font-size: 12.5px; text-align: center;
+  }
+
+  .day {
+    position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 12px 11px 11px; min-height: 136px; display: flex; flex-direction: column; gap: 6px;
+    overflow: hidden;
+    transition: box-shadow .18s ease, transform .18s ease;
+  }
+  .day::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: rgba(79,70,229,0.35);
+  }
+  .day:hover { box-shadow: 0 6px 18px rgba(20,22,30,0.1); transform: translateY(-2px); }
+  .day.empty { visibility: hidden; }
+  .day-num { font-weight: 800; font-size: 16px; }
+  .day-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; }
+  .badge-android { background: #dcfce7; color: #15803d; }
+  .badge-ios { background: #e0e7ff; color: #4338ca; }
+  .badge-all { background: #fef3c7; color: #92400e; }
+  .day-ratio { font-weight: 900; font-size: 13.5px; }
+  .day-note { font-size: 11.5px; line-height: 1.45; color: var(--ink); flex-grow: 1; }
+  .day-risk { font-size: 11px; font-weight: 800; }
+
+  .day.launch::before { background: var(--launch-gold); }
+  .day.launch { background: rgba(245,158,11,0.14); border-color: rgba(245,158,11,0.5); }
+  .day.launch .day-num { color: #b45309; }
+
+  .day.freefri::before { background: var(--launch-gold); }
+  .day.freefri { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); }
+
+  .day.saturday::before { background: var(--sat-blue); }
+  .day.saturday { background: rgba(37,99,235,0.08); border-color: rgba(37,99,235,0.4); }
+  .day.saturday .day-num { color: var(--sat-blue); }
+
+  .day.sunday::before { background: #9ca3af; }
+  .day.sunday { background: rgba(156,163,175,0.12); color: var(--muted); }
+  .day.sunday .day-num { color: var(--holiday-red); opacity: 0.75; }
+
+  .day.freeze::before { background: var(--freeze-purple); }
+  .day.freeze { background: rgba(124,58,237,0.09); border-color: rgba(124,58,237,0.4); }
+
+  .day.holiday::before { background: var(--holiday-red); height: 5px; }
+  .day.holiday { background: rgba(220,38,38,0.13); border: 1.5px solid rgba(220,38,38,0.55); }
+  .day.holiday .day-num { color: var(--holiday-red); }
+  .day.holiday .day-risk { color: var(--holiday-red); }
+
+  .day.done::before { background: var(--done-green); }
+  .day.done { background: rgba(16,185,129,0.13); border-color: rgba(16,185,129,0.5); }
+
+  .day.today { box-shadow: 0 0 0 3px var(--launch-gold), 0 8px 20px rgba(245,158,11,0.25); }
+  .day.today .day-num::after {
+    content: "오늘"; margin-left: 6px; font-size: 9.5px; font-weight: 800;
+    background: var(--launch-gold); color: #fff; padding: 1px 6px; border-radius: 999px; vertical-align: middle;
+  }
+
+  body.edit-mode .editable { outline: 1.5px dashed var(--brand); outline-offset: 2px; border-radius: 4px; cursor: text; }
+  body.edit-mode .editable:focus { outline: 2px solid var(--brand); background: rgba(79,70,229,0.06); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+    background: #1f2330; color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 13px;
+    opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  footer { text-align: center; margin-top: 28px; color: var(--muted); font-size: 12px; }
+
+  @media (max-width: 640px) {
+    header.page-header h1 { font-size: 20px; }
+    .topbar { padding: 10px 12px; }
+    .dday-badge { font-size: 19px; }
+    .cal-panel { padding: 12px; border-radius: 16px; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <span class="hint">✏️ 수정하기를 눌러 내용을 직접 고치면 이 링크로 접속하는 모든 사람에게 반영돼요</span>
+    <button id="editBtn" onclick="toggleEdit()">✏️ 수정하기</button>
+  </div>
+
+  <div class="dday-banner">
+    <span class="dday-label editable" data-key="dday-label">🚀 8월 31일(월) Android 출시 예정</span>
+    <span class="dday-badge" id="ddayBadge">D-24</span>
+  </div>
+
+  <header class="page-header">
+    <h1 class="editable" data-key="title">📅 앱 서비스 순차배포 캘린더</h1>
+    <p class="editable" data-key="subtitle">2026년 8월 31일 ~ 9월 30일</p>
+  </header>
+
+  <div class="legend">
+    <span><i class="dot today"></i>오늘</span>
+    <span><i class="dot launch"></i>출시일</span>
+    <span><i class="dot saturday"></i>토요일</span>
+    <span><i class="dot holiday"></i>공휴일 · 추석 연휴</span>
+    <span><i class="dot freeze"></i>Deployment Freeze</span>
+    <span><i class="dot done"></i>완료 / 배포 종료</span>
+  </div>
+
+  <div class="cal-panel">
+  <div class="cal-scroll">
+    <div class="cal-grid" id="calGrid">
+      <div class="dow-band">
+        <div class="dow sun">일</div><div class="dow">월</div><div class="dow">화</div><div class="dow">수</div><div class="dow">목</div><div class="dow">금</div><div class="dow sat">토</div>
+      </div>
+
+      <div class="day empty"></div>
+      <div class="day launch" data-date="2026-08-31">
+        <div class="day-num">8/31</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0831-ratio">1% ~ 5%</span></div>
+        <div class="day-note editable" data-key="0831-note">🚀 출시일. Google Play 콘솔 순차배포 개시, 초기 크래시(Crashlytics) 실시간 감시</div>
+        <div class="day-risk editable" data-key="0831-risk">배포 시작</div>
+      </div>
+      <div class="day" data-date="2026-09-01">
+        <div class="day-num">1</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0901-ratio">5%</span></div>
+        <div class="day-note editable" data-key="0901-note">주요 온보딩, 회원가입, 결제 실패 로그 점검</div>
+        <div class="day-risk editable" data-key="0901-risk"></div>
+      </div>
+      <div class="day" data-date="2026-09-02">
+        <div class="day-num">2</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0902-ratio">10% ~ 20%</span></div>
+        <div class="day-note editable" data-key="0902-note">초기 치명적 이슈 미발생 시 배포 비율 1차 확대</div>
+        <div class="day-risk editable" data-key="0902-risk"></div>
+      </div>
+      <div class="day" data-date="2026-09-03">
+        <div class="day-num">3</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0903-ratio">20%</span></div>
+        <div class="day-note editable" data-key="0903-note">트래픽 증가 추이 및 DB/서버 부하 모니터링</div>
+        <div class="day-risk editable" data-key="0903-risk"></div>
+      </div>
+      <div class="day freefri" data-date="2026-09-04">
+        <div class="day-num">4</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0904-ratio">20% (동결)</span></div>
+        <div class="day-note editable" data-key="0904-note">주말 대응 불가에 대비하여 배포 비율 유지</div>
+        <div class="day-risk editable" data-key="0904-risk">⚠️ 금요일 비율 상향 금지</div>
+      </div>
+      <div class="day saturday" data-date="2026-09-05">
+        <div class="day-num">5</div>
+        <div class="day-note editable" data-key="0905-note">주말 자동 모니터링 수행</div>
+        <div class="day-risk editable" data-key="0905-risk">토요일 (대응 불가)</div>
+      </div>
+
+      <div class="day sunday" data-date="2026-09-06">
+        <div class="day-num">6</div>
+        <div class="day-note editable" data-key="0906-note">주말 자동 모니터링 수행</div>
+        <div class="day-risk editable" data-key="0906-risk">일요일 (대응 불가)</div>
+      </div>
+      <div class="day" data-date="2026-09-07">
+        <div class="day-num">7</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0907-ratio">30%</span></div>
+        <div class="day-note editable" data-key="0907-note">주말 누적 CS/리뷰 확인 후 배포 비율 2차 확대</div>
+        <div class="day-risk editable" data-key="0907-risk"></div>
+      </div>
+      <div class="day" data-date="2026-09-08">
+        <div class="day-num">8</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0908-ratio">30%</span></div>
+        <div class="day-note editable" data-key="0908-note">API 서버 응답 속도 및 에러율 점검</div>
+        <div class="day-risk editable" data-key="0908-risk"></div>
+      </div>
+      <div class="day" data-date="2026-09-09">
+        <div class="day-num">9</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0909-ratio">50%</span></div>
+        <div class="day-note editable" data-key="0909-note">배포 비율 50% 확대 (중규모 유저 대상 검증)</div>
+        <div class="day-risk editable" data-key="0909-risk"></div>
+      </div>
+      <div class="day" data-date="2026-09-10">
+        <div class="day-num">10</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0910-ratio">50%</span></div>
+        <div class="day-note editable" data-key="0910-note">특정 기기/OS 버전별 호환성 이슈 점검</div>
+        <div class="day-risk editable" data-key="0910-risk"></div>
+      </div>
+      <div class="day freefri" data-date="2026-09-11">
+        <div class="day-num">11</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0911-ratio">50% (동결)</span></div>
+        <div class="day-note editable" data-key="0911-note">주말 대응 불가에 대비하여 배포 비율 유지</div>
+        <div class="day-risk editable" data-key="0911-risk">⚠️ 금요일 비율 상향 금지</div>
+      </div>
+      <div class="day saturday" data-date="2026-09-12">
+        <div class="day-num">12</div>
+        <div class="day-note editable" data-key="0912-note">주말 자동 모니터링 수행</div>
+        <div class="day-risk editable" data-key="0912-risk">토요일 (대응 불가)</div>
+      </div>
+
+      <div class="day sunday" data-date="2026-09-13">
+        <div class="day-num">13</div>
+        <div class="day-note editable" data-key="0913-note">주말 자동 모니터링 수행</div>
+        <div class="day-risk editable" data-key="0913-risk">일요일 (대응 불가)</div>
+      </div>
+      <div class="day" data-date="2026-09-14">
+        <div class="day-num">14</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0914-ratio">70% ~ 80%</span></div>
+        <div class="day-note editable" data-key="0914-note">배포 비율 대폭 상향</div>
+        <div class="day-risk editable" data-key="0914-risk"></div>
+      </div>
+      <div class="day" data-date="2026-09-15">
+        <div class="day-num">15</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0915-ratio">80%</span></div>
+        <div class="day-note editable" data-key="0915-note">잔여 버그 및 스토어 피드백 수집</div>
+        <div class="day-risk editable" data-key="0915-risk"></div>
+      </div>
+      <div class="day done" data-date="2026-09-16">
+        <div class="day-num">16</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0916-ratio">100%</span></div>
+        <div class="day-note editable" data-key="0916-note">Android 100% 완전 배포 전환</div>
+        <div class="day-risk editable" data-key="0916-risk">🚀 Android 완료</div>
+      </div>
+      <div class="day" data-date="2026-09-17">
+        <div class="day-num">17</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0917-ratio">100%</span></div>
+        <div class="day-note editable" data-key="0917-note">100% 배포 상태에서 전체 시스템 안정성 점검</div>
+        <div class="day-risk editable" data-key="0917-risk"></div>
+      </div>
+      <div class="day" data-date="2026-09-18">
+        <div class="day-num">18</div>
+        <div class="day-row"><span class="badge badge-android">Android</span><span class="day-ratio editable" data-key="0918-ratio">100%</span></div>
+        <div class="day-note editable" data-key="0918-note">추석 연휴 전 최종 시스템 안정화 확인</div>
+        <div class="day-risk editable" data-key="0918-risk">연휴 전 마지막 평일</div>
+      </div>
+      <div class="day saturday" data-date="2026-09-19">
+        <div class="day-num">19</div>
+        <div class="day-note editable" data-key="0919-note">주말 자동 모니터링 수행</div>
+        <div class="day-risk editable" data-key="0919-risk">토요일 (대응 불가)</div>
+      </div>
+
+      <div class="week-banner">🔴 추석 연휴 주간 · 9/24(목) ~ 9/27(일)</div>
+      <div class="day sunday" data-date="2026-09-20">
+        <div class="day-num">20</div>
+        <div class="day-note editable" data-key="0920-note">주말 자동 모니터링 수행</div>
+        <div class="day-risk editable" data-key="0920-risk">일요일 (대응 불가)</div>
+      </div>
+      <div class="day freeze" data-date="2026-09-21">
+        <div class="day-num">21</div>
+        <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0921-ratio">100% (AOS)</span></div>
+        <div class="day-note editable" data-key="0921-note">신규 빌드 제출 및 배포 비율 수정 금지</div>
+        <div class="day-risk editable" data-key="0921-risk">⛔ Deployment Freeze</div>
+      </div>
+      <div class="day freeze" data-date="2026-09-22">
+        <div class="day-num">22</div>
+        <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0922-ratio">100% (AOS)</span></div>
+        <div class="day-note editable" data-key="0922-note">연휴 전 수동 점검 마무리</div>
+        <div class="day-risk editable" data-key="0922-risk">⛔ Deployment Freeze</div>
+      </div>
+      <div class="day freeze" data-date="2026-09-23">
+        <div class="day-num">23</div>
+        <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0923-ratio">100% (AOS)</span></div>
+        <div class="day-note editable" data-key="0923-note">추석 연휴 전 최종 점검 (연휴 전 마지막 평일)</div>
+        <div class="day-risk editable" data-key="0923-risk">⛔ Deployment Freeze</div>
+      </div>
+      <div class="day holiday" data-date="2026-09-24">
+        <div class="day-num">24</div>
+        <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0924-ratio">100% (AOS)</span></div>
+        <div class="day-note editable" data-key="0924-note">추석 연휴 시작 (비상 모니터링)</div>
+        <div class="day-risk editable" data-key="0924-risk">🔴 추석 연휴</div>
+      </div>
+      <div class="day holiday" data-date="2026-09-25">
+        <div class="day-num">25</div>
+        <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0925-ratio">100% (AOS)</span></div>
+        <div class="day-note editable" data-key="0925-note">추석 당일 (비상 모니터링)</div>
+        <div class="day-risk editable" data-key="0925-risk">🔴 추석 당일</div>
+      </div>
+      <div class="day holiday" data-date="2026-09-26">
+        <div class="day-num">26</div>
+        <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0926-ratio">100% (AOS)</span></div>
+        <div class="day-note editable" data-key="0926-note">추석 연휴 (비상 모니터링)</div>
+        <div class="day-risk editable" data-key="0926-risk">🔴 추석 연휴 (토요일)</div>
+      </div>
+
+      <div class="day holiday" data-date="2026-09-27">
+        <div class="day-num">27</div>
+        <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0927-ratio">100% (AOS)</span></div>
+        <div class="day-note editable" data-key="0927-note">추석 연휴 마지막 날 (비상 모니터링)</div>
+        <div class="day-risk editable" data-key="0927-risk">🔴 추석 연휴 (일요일)</div>
+      </div>
+      <div class="day" data-date="2026-09-28">
+        <div class="day-num">28</div>
+        <div class="day-row"><span class="badge badge-ios">iOS</span><span class="day-ratio editable" data-key="0928-ratio">1% ~ 2%</span></div>
+        <div class="day-note editable" data-key="0928-note">App Store Connect 단계적 배포(Phased Release) 시작</div>
+        <div class="day-risk editable" data-key="0928-risk">🚀 iOS 배포 시작</div>
+      </div>
+      <div class="day done" data-date="2026-09-29">
+        <div class="day-num">29</div>
+        <div class="day-row"><span class="badge badge-ios">iOS</span><span class="day-ratio editable" data-key="0929-ratio">100%</span></div>
+        <div class="day-note editable" data-key="0929-note">특이 이슈 미발생 확인 후 '즉시 배포' 클릭하여 100% 확정</div>
+        <div class="day-risk editable" data-key="0929-risk">🚀 iOS 완료</div>
+      </div>
+      <div class="day done" data-date="2026-09-30">
+        <div class="day-num">30</div>
+        <div class="day-row"><span class="badge badge-all">전체</span><span class="day-ratio editable" data-key="0930-ratio">100% (통합)</span></div>
+        <div class="day-note editable" data-key="0930-note">AOS + iOS 전체 100% 배포 완료 및 차월 운영 전환</div>
+        <div class="day-risk editable" data-key="0930-risk">🎉 전 기능 배포 종료</div>
+      </div>
+      <div class="day empty"></div>
+      <div class="day empty"></div>
+      <div class="day empty"></div>
+    </div>
+  </div>
+  </div>
+
+  <footer class="editable" data-key="footer">최종 업데이트: 2026-08-07 · 추석 연휴는 2026년 실제 공휴일(9/24~9/27) 기준입니다</footer>
+</div>
+
+<div class="toast" id="toast">저장했어요</div>
+
+<script>
+  var BIN_URL = 'https://json.extendsclass.com/bin/4604dc97f37b';
+  var CACHE_KEY = 'deployCal_v2_cache';
+  var editMode = false;
+
+  function applyData(data) {
+    document.querySelectorAll('.editable').forEach(function(el) {
+      var key = el.getAttribute('data-key');
+      if (key && Object.prototype.hasOwnProperty.call(data, key)) {
+        el.innerText = data[key];
+      }
+    });
+  }
+
+  function cacheLocally(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
+  function loadFromCache() {
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      if (raw) applyData(JSON.parse(raw));
+    } catch (e) {}
+  }
+
+  function loadRemote() {
+    loadFromCache();
+    fetch(BIN_URL, { cache: 'no-store' })
+      .then(function(r) { if (!r.ok) throw new Error('load failed'); return r.json(); })
+      .then(function(data) {
+        if (data && typeof data === 'object') {
+          applyData(data);
+          cacheLocally(data);
+        }
+      })
+      .catch(function(err) { console.warn('원격 데이터 불러오기 실패, 캐시된 내용을 사용해요', err); });
+  }
+
+  function collectData() {
+    var data = {};
+    document.querySelectorAll('.editable').forEach(function(el) {
+      var key = el.getAttribute('data-key');
+      if (key) data[key] = el.innerText;
+    });
+    return data;
+  }
+
+  function saveRemote() {
+    var data = collectData();
+    cacheLocally(data);
+    showToast('저장 중...');
+    fetch(BIN_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+      .then(function(r) { if (!r.ok) throw new Error('save failed'); return r.json(); })
+      .then(function() { showToast('저장했어요 — 모두에게 반영돼요 ✅'); })
+      .catch(function(err) { showToast('저장 실패 — 인터넷 연결을 확인해주세요 ⚠️'); });
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2200);
+  }
+
+  function toggleEdit() {
+    editMode = !editMode;
+    var btn = document.getElementById('editBtn');
+    document.querySelectorAll('.editable').forEach(function(el) {
+      el.contentEditable = editMode ? 'true' : 'false';
+    });
+    document.body.classList.toggle('edit-mode', editMode);
+
+    if (editMode) {
+      btn.textContent = '💾 저장하고 완료';
+      btn.classList.add('active');
+      showToast('수정 모드 켜짐 — 텍스트를 클릭해서 바로 고치세요');
+    } else {
+      btn.textContent = '✏️ 수정하기';
+      btn.classList.remove('active');
+      saveRemote();
+    }
+  }
+
+  function updateDday() {
+    var target = new Date(2026, 7, 31);
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    target.setHours(0,0,0,0);
+    var diffDays = Math.round((target - today) / 86400000);
+    var badge = document.getElementById('ddayBadge');
+    if (diffDays > 0) badge.textContent = 'D-' + diffDays;
+    else if (diffDays === 0) badge.textContent = 'D-DAY';
+    else badge.textContent = 'D+' + Math.abs(diffDays);
+  }
+
+  function markToday() {
+    var today = new Date();
+    var y = today.getFullYear();
+    var m = String(today.getMonth() + 1).padStart(2, '0');
+    var d = String(today.getDate()).padStart(2, '0');
+    var todayStr = y + '-' + m + '-' + d;
+    var cell = document.querySelector('.day[data-date="' + todayStr + '"]');
+    if (cell) cell.classList.add('today');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    loadRemote();
+    updateDday();
+    markToday();
+  });
+</script>
+</section>
+</body>
+</html>
